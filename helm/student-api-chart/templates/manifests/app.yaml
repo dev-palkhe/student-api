@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-api
+  namespace: student-info-app
+spec:
+  template:
+    spec:
+      nodeSelector:
+        app: backend
+  replicas: 1
+  selector:
+    matchLabels:
+      app: student-api
+  template:
+    metadata:
+      labels:
+        app: student-api
+    spec:
+      initContainers:
+      - name: db-migrations
+        image: postgres:15
+        command: ["/bin/sh", "-c", "psql -h $DB_HOST -p $DB_PORT -U $DB_USER -c \"CREATE DATABASE student_api;\""]
+        volumeMounts:
+        - name: db-migrations
+          mountPath: /migrations
+        env:
+          - name: DB_HOST
+            value: postgres-service
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: example-secret
+                key: DB_username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: example-secret
+                key: DB_password
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: example-secret
+                key: DB_password
+          - name: DB_NAME
+            value: student_api
+        securityContext:
+          runAsUser: 0
+      containers:
+      - name: student-api
+        image: docker.io/devasheesh22/student-api:{{ .Values.image.tag }}
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: db-secrets
+          mountPath: /etc/db-secrets
+          readOnly: true
+        env:
+          - name: DB_HOST
+            value: postgres-service
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_NAME
+            value: student_api
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: example-secret
+                key: DB_URL
+      volumes:
+      - name: db-migrations
+        configMap:
+          name: db-migrations
+      - name: db-secrets
+        secret:
+          secretName: example-secret
+          items:
+          - key: DB_username
+            path: username
+          - key: DB_password
+            path: password
+          - key: DB_URL
+            path: url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: student-api-service
+  namespace: student-info-app
+spec:
+  selector:
+    app: student-api
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: ClusterIP

@@ -1,0 +1,46 @@
+apiVersion: v1
+data:
+  migrate.sh: |
+    #!/bin/bash
+
+    set -e
+
+    # Wait for the database service to be available
+    until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME"; do
+      echo "Waiting for database to be ready..."
+      sleep 2
+    done
+
+    echo "Database is ready. Running migrations..."
+
+    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f /migrations/schema.sql
+
+    echo "Migrations complete."
+  schema.sql: |
+    -- Create the student_api database if it doesn't exist (useful for initial setup)
+    CREATE DATABASE IF NOT EXISTS student_api;
+    \c student_api;
+
+    -- Create the students table if it doesn't exist
+    CREATE TABLE IF NOT EXISTS students (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Generate UUIDs automatically
+        name VARCHAR(255) NOT NULL,
+        age INTEGER NOT NULL,
+        course VARCHAR(255),
+        email VARCHAR(255),  -- Added email column
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Create an index on the name column if it doesn't exist
+    CREATE INDEX IF NOT EXISTS idx_students_name ON students (name);
+
+    -- Example Data Insertion (Optional - for testing)
+    INSERT INTO students (name, age, course, email) VALUES
+    ('John Doe', 20, 'Computer Science', 'john.doe@example.com'),
+    ('Jane Smith', 22, 'Mathematics', 'jane.smith@example.com');
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: db-migrations
+  namespace: student-info-app
