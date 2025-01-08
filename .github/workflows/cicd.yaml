@@ -26,13 +26,13 @@ jobs:
 
     - name: Build
       run: |
-      cd cmd
-      go build -o student-api
+        cd cmd 
+        go build -o student-api 
 
     - name: Test
       run: |
-      cd cmd
-      gp test ./..
+        cd cmd 
+        go test ./...
 
   
   code-quality:
