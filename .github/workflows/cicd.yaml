@@ -32,7 +32,7 @@ jobs:
     - name: Test
       run: |
         cd cmd 
-        go test ./...
+        go test -v ./...
 
   
   code-quality:
