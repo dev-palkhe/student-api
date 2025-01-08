@@ -25,10 +25,15 @@ jobs:
         go-version: 1.22
 
     - name: Build
-      run: go build -o student-api
+      run: |
+      cd cmd
+      go build -o student-api
 
     - name: Test
-      run: go test ./...
+      run: |
+      cd cmd
+      gp test ./..
+
   
   code-quality:
     runs-on: ubuntu-latest
