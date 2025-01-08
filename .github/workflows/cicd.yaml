@@ -3,7 +3,7 @@ name: Docker Image Build and Push
 on:
   push:
     branches:
-      - main  # or your desired branch
+      - master  # or your desired branch
     paths:
       - '**/cmd/**' # Only trigger for changes in the cmd directory
       - '**/internal/**' # Include other relevant code directories if applicable
