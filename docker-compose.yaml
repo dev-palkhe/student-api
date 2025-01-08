@@ -2,15 +2,15 @@ services:
   db:
     image: postgres:15
     environment:
-      - POSTGRES_USER=devasheesh
-      - POSTGRES_PASSWORD=devasheesh
-      - POSTGRES_DB=student_db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432" # Host:Container (Standard PostgreSQL port)
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U devasheesh -d student_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,7 +20,7 @@ services:
     ports:
       - "8081:8080" # Host 8081 maps to Container 8080
     environment:
-      - DATABASE_URL=postgres://devasheesh:devasheesh@db:5432/student_db?sslmode=disable
+      - DATABASE_URL=${DATABASE_URL}
       - PORT=8080 # App listens on 8080 INSIDE container
       - INSTANCE_NAME=app1
     depends_on:
@@ -31,7 +31,7 @@ services:
     ports:
       - "8082:8080" # Host 8082 maps to Container 8080
     environment:
-      - DATABASE_URL=postgres://devasheesh:devasheesh@db:5432/student_db?sslmode=disable
+      - DATABASE_URL=${DATABASE_URL}
       - PORT=8080 # App listens on 8080 INSIDE container
       - INSTANCE_NAME=app2
     depends_on:

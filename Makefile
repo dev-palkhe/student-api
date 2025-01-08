@@ -8,7 +8,7 @@ IMAGE_NAME := $(PROJECT_NAME)-api
 DB_CONTAINER := $(PROJECT_NAME)_db_1
 
 # Define database URL
-DATABASE_URL := postgres://devasheesh:devasheesh@db:5432/student_db?sslmode=disable
+DATABASE_URL := ${DATABASE_URL}
 
 # Docker Compose file
 COMPOSE_FILE := docker-compose.yaml
