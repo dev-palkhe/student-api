@@ -2,7 +2,7 @@ replicaCount: 1
 image:
   repository: devasheesh22/student-api
   pullPolicy: IfNotPresent
-  tag: "12684843640"
+  tag: "12688630315"
 servicePort: 8080
 database:
   host: postgres.my-namespace.svc.cluster.local
