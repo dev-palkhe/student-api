@@ -51,6 +51,7 @@ spec:
       containers:
       - name: student-api
         image: docker.io/devasheesh22/student-api:{{ .Values.image.tag }}
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         volumeMounts:
