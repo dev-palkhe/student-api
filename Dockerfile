@@ -25,7 +25,6 @@ COPY --from=builder /app/main .
 COPY migrations /app/migrations
 
 # Copy .env file (optional, but recommended to use environment variables)
-COPY .env .
 
 # Set environment variables (these can be overridden at runtime)
 ENV PORT=8080      
