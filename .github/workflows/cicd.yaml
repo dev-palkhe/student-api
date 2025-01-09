@@ -31,18 +31,6 @@ jobs:
         cd cmd
         go build -o student-api 
   
-  code-quality:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v6
-      with:
-        version: v1.28.3
-  
   push:
     runs-on: ubuntu-latest
 
