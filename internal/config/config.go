@@ -14,7 +14,7 @@ type Config struct {
 
 func LoadConfig() (*Config, error) {
 	if err := godotenv.Load(); err != nil {
-		log.Print("No .env file found") // It's okay if .env is not present in production
+		log.Print("No .env file found") // It's okay if .env is not present in 
 	}
 
 	port := os.Getenv("PORT")
