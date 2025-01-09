@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: devasheesh22/student-api
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: "12688630315"
 servicePort: 8080
 database:
