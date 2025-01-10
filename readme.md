@@ -300,3 +300,81 @@ kubectl apply -f database.yaml
 kubectl apply -f app.yaml
 
 ```
+## Deploying application using helm chart :
+
+Using helm charts we manually wont need to apply all the manifests from k8s folder, follow the steps below:
+
+```bash
+kubectl create ns student-info-app
+cd ESO #to inject the serets
+kubectl apply -f vault-secret-token.yaml
+kubectl apply -f secreststore.yaml
+kubectl apply -f external-secret.yaml
+
+cd helm
+# using helm we wont need to apply all the manifests .
+helm install student-api-v1 ./student-api-chart
+
+
+## To access the k8s application use :
+
+```bash
+kubectl port-forward svc/student-api-service 8080:80 -n student-info-app
+```
+
+## Install Argo CD
+# Install Argo CD using manifests
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+# Access the Argo CD UI (Loadbalancer service)
+```bash
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+```
+# To access the argocd UI 
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8084:443
+```
+localhost://8084 is where you can access the argocd UI.
+
+Once forwaded select advanced and allow the it then a login portal for argocd will appear .
+
+The username is admin and to for password do the following steps:
+```bash
+kubectl get secrets -n argocd
+NAME                          TYPE     DATA   AGE
+argocd-initial-admin-secret   Opaque   1      116m
+argocd-notifications-secret   Opaque   0      118m
+argocd-redis                  Opaque   1      116m
+argocd-secret                 Opaque   5      117m
+
+
+kubectl edit secret argocd-initial-admin-secret -n argocd 
+#copy the password and simply quit by escaping and :q!
+```
+The encoded password needs to be decoded :
+
+echo < encoded pass > | base64 --d
+
+< the original pass > #copy it and paste in UI 
+
+Fill in all the details as per your configuration in your project .
+
+Once successfully synced you can access and track all tha changes !!!
+
+Any commit or change in codebase will trigger the pipeline !!!
+
+To Access the appliaction dont forget to port forward :
+
+```bash
+kubectl port-forward svc/student-api-service 8080:80 -n student-info-app 
+# You can access the application by doing this 
+```
+# Application would look like this 
+![alt text](<Screenshot from 2025-01-09 14-39-07.png>)
+
+# Argocd willl look for any changes made and you look after all the objects using argocd
+
+![alt text](image.png)
+
