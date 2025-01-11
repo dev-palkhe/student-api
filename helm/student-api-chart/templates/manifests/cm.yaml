@@ -2,25 +2,20 @@ apiVersion: v1
 data:
   migrate.sh: |
     #!/bin/bash
+
     set -e
 
     # Wait for the database service to be available
     until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME"; do
       echo "Waiting for database to be ready..."
-    sleep 2
+      sleep 2
     done
 
     echo "Database is ready. Running migrations..."
 
-    # Check if the database exists, create if it doesn't
-    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres -c "SELECT 1 FROM pg_database WHERE datname = '$DB_NAME'" | grep -q 1 || \
-    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME;"
-
-    # Run the migrations
     psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f /migrations/schema.sql
 
     echo "Migrations complete."
-
   schema.sql: |
     -- Create the student_api database if it doesn't exist (useful for initial setup)
     CREATE DATABASE IF NOT EXISTS student_api;

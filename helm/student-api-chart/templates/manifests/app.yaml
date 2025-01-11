@@ -20,22 +20,7 @@ spec:
       initContainers:
       - name: db-migrations
         image: postgres:15
-        command:
-          - "/bin/sh"
-          - "-c"
-          - |
-            set -e
-
-            # Check if the database exists before creating it
-            echo "Checking if database exists..."
-
-            # Connect to the database and create it if it doesn't exist
-            psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d postgres -c "SELECT 1 FROM pg_database WHERE datname = 'student_api'" | grep -q 1 || \
-            psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d postgres -c "CREATE DATABASE student_api;"
-
-            # Run migrations
-            echo "Running migrations..."
-            psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d student_api -f /migrations/schema.sql
+        command: ["/bin/sh", "-c", "psql -h $DB_HOST -p $DB_PORT -U $DB_USER -c \"CREATE DATABASE student_api;\""]
         volumeMounts:
         - name: db-migrations
           mountPath: /migrations
