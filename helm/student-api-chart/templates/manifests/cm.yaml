@@ -1,4 +1,8 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-migrations
+  namespace: student-info-app
 data:
   migrate.sh: |
     #!/bin/bash
@@ -17,30 +21,36 @@ data:
 
     echo "Migrations complete."
   schema.sql: |
-    -- Create the student_api database if it doesn't exist (useful for initial setup)
-    CREATE DATABASE IF NOT EXISTS student_api;
-    \c student_api;
-
     -- Create the students table if it doesn't exist
     CREATE TABLE IF NOT EXISTS students (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Generate UUIDs automatically
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Automatically generate UUIDs
         name VARCHAR(255) NOT NULL,
         age INTEGER NOT NULL,
         course VARCHAR(255),
-        email VARCHAR(255),  -- Added email column
+        email VARCHAR(255) UNIQUE, -- Ensure unique emails
         created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
     -- Create an index on the name column if it doesn't exist
-    CREATE INDEX IF NOT EXISTS idx_students_name ON students (name);
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM pg_indexes 
+            WHERE tablename = 'students' AND indexname = 'idx_students_name'
+        ) THEN
+            CREATE INDEX idx_students_name ON students (name);
+        END IF;
+    END $$;
 
     -- Example Data Insertion (Optional - for testing)
-    INSERT INTO students (name, age, course, email) VALUES
-    ('John Doe', 20, 'Computer Science', 'john.doe@example.com'),
-    ('Jane Smith', 22, 'Mathematics', 'jane.smith@example.com');
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: db-migrations
-  namespace: student-info-app
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM students WHERE email = 'john.doe@example.com') THEN
+            INSERT INTO students (name, age, course, email)
+            VALUES
+            ('John Doe', 20, 'Computer Science', 'john.doe@example.com'),
+            ('Jane Smith', 22, 'Mathematics', 'jane.smith@example.com');
+        END IF;
+    END $$;
