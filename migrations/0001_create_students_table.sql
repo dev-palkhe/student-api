@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE students (
+CREATE TABLE IF NOT EXISTS students (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     age INTEGER NOT NULL,
@@ -9,4 +9,4 @@ CREATE TABLE students (
 );
 
 -- +goose Down
-DROP TABLE students;
+DROP TABLE IF EXISTS students;
