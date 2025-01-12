@@ -416,4 +416,5 @@ helm install prometheus prometheus-community/prometheus
 
 # Add prometheus as a data source and fetch all the metrics in graphana UI
 
+```
 ![alt text](image-3.png)
