@@ -107,6 +107,9 @@ vagrant up
 ```bash
 vagrant down
 ```
+
+![alt text](image-2.png)
+
 ## Deploying the app on kubernetes
 
 You can either use Kind or minikube ,I have used kind as it consumes less resources .
@@ -126,7 +129,7 @@ nodes:
     image: kindest/node:v1.28.7@sha256:9bc6c451a289cf96ad0bbaf33d416901de6fd632415b076ab05f5fa7e4f65c58
 ```
 
-Make sure the docker daemon in running!
+Make sure the docker daemon is running!
 ```bash
 kind create cluster --config cluster.yaml 
 ```
@@ -374,7 +377,43 @@ kubectl port-forward svc/student-api-service 8080:80 -n student-info-app
 # Application would look like this 
 ![alt text](<Screenshot from 2025-01-09 14-39-07.png>)
 
-# Argocd willl look for any changes made and you look after all the objects using argocd
+# Argocd will look for any changes made and you look after all the objects using argocd
 
 ![alt text](image.png)
 
+# Integrating with PLG (promtail ,loki & grafana)
+```bash
+helm repo add grafana https://grafana.github.io/helm-charts 
+helm repo update
+helm search repo loki
+helm show values grafana/loki-stack > values.yaml
+vim values.yaml
+#(just change promtail enabled from false to true)
+#save it
+helm install --values values.yaml loki grafana/loki-stack
+
+kubectl get pod
+NAME                            READY   STATUS    RESTARTS   AGE
+loki-0                          1/1     Running   0          2m3s
+loki-grafana-597cbfc4c9-hxd99   2/2     Running   0          2m3s
+loki-promtail-7ft5k             1/1     Running   0          2m3s
+loki-promtail-bsls8             1/1     Running   0          2m3s
+loki-promtail-h7h7g             1/1     Running   0          2m3s
+kubectl port-forward pod/loki-grafana-597cbfc4c9-hxd99 3000:3000 # for the UI to start
+Forwarding from 127.0.0.1:3000 -> 3000
+Forwarding from [::1]:3000 -> 3000
+# Copy and paste the secret from loki-secret which is base64 encoded decode it
+```
+In graphana UI you will have grafana loki pre-configured access it and you can check fro all the logs over there !
+
+![alt text](<Screenshot from 2025-01-11 22-22-46.png>)
+
+# Install prometheus using helm chart 
+```bash
+helm repo add prometheus https://prometheus.github.io/helm-charts
+
+helm install prometheus prometheus-community/prometheus
+
+# Add prometheus as a data source and fetch all the metrics in graphana UI
+
+![alt text](image-1.png)
