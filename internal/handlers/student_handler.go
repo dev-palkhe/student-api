@@ -5,17 +5,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dev-palkhe/student-api/internal/repository" // EXACTLY this
+
 	"github.com/dev-palkhe/student-api/internal/models"
-	"github.com/dev-palkhe/student-api/internal/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type StudentHandler struct {
-	repo repository.StudentRepository
+	repo *repository.PostgresStudentRepository
 }
 
-func NewStudentHandler(repo repository.StudentRepository) *StudentHandler {
+func NewStudentHandler(repo *repository.PostgresStudentRepository) *StudentHandler {
 	return &StudentHandler{repo: repo}
 }
 
@@ -27,8 +28,10 @@ func (h *StudentHandler) CreateStudent(c *gin.Context) {
 	}
 
 	student.ID = uuid.New()
+	student.CreatedAt = time.Now()
+	student.UpdatedAt = time.Now()
 
-	createdStudent, err := h.repo.Create(c.Request.Context(), student)
+	createdStudent, err := h.repo.Create(student)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create student"})
 		return
@@ -38,7 +41,7 @@ func (h *StudentHandler) CreateStudent(c *gin.Context) {
 }
 
 func (h *StudentHandler) GetAllStudents(c *gin.Context) {
-	students, err := h.repo.GetAll(c.Request.Context())
+	students, err := h.repo.GetAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get students"})
 		return
@@ -53,7 +56,7 @@ func (h *StudentHandler) GetStudentByID(c *gin.Context) {
 		return
 	}
 
-	student, err := h.repo.GetByID(c.Request.Context(), id)
+	student, err := h.repo.GetByID(id)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Student not found"})
 		return
@@ -80,12 +83,12 @@ func (h *StudentHandler) UpdateStudent(c *gin.Context) {
 	student.ID = id
 	student.UpdatedAt = time.Now()
 
-	err = h.repo.Update(c.Request.Context(), student)
+	err = h.repo.Update(student)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update student"})
 		return
 	}
-	updatedStudent, err := h.repo.GetByID(c.Request.Context(), student.ID)
+	updatedStudent, err := h.repo.GetByID(student.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get updated student"})
 		return
@@ -101,7 +104,7 @@ func (h *StudentHandler) DeleteStudent(c *gin.Context) {
 		return
 	}
 
-	err = h.repo.Delete(c.Request.Context(), id)
+	err = h.repo.Delete(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete student"})
 		return

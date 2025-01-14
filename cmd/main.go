@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -17,18 +19,27 @@ import (
 	"github.com/pressly/goose"
 )
 
+func NewPostgresDB(dbURL string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
+
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping database: %w", err)
+	}
+
+	log.Println("Connected to database")
+	return db, nil
+}
+
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	instanceName := os.Getenv("INSTANCE_NAME")
-	if instanceName == "" {
-		instanceName = "default" // Set a default name if not provided
-	}
-
-	db, err := repository.NewPostgresDB(cfg.DatabaseURL)
+	db, err := NewPostgresDB(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
