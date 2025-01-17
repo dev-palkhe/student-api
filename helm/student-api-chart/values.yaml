@@ -3,9 +3,9 @@ image:
   repository: devasheesh22/student-api
   pullPolicy: Always
 <<<<<<< HEAD
-  tag: "12824256160"
+  tag: "12824336099"
 =======
-  tag: "12824256160"
+  tag: "12824336099"
 >>>>>>> bd5534e (Updated readme)
 servicePort: 8080
 database:
