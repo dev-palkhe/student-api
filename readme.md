@@ -51,22 +51,35 @@ The API endpoints are typically accessed through standard HTTP methods (GET, POS
 
 **API Endpoints**
 
+![alt text](<Screenshot from 2025-01-17 12-01-19.png>)
+
 Endpoint	Method	Description
 /students	GET	Retrieves a list of all students.
+
 /students/:id	GET	Retrieves details of a specific student by ID.
+
 /students	POST	Creates a new student entry.
+
 /students/:id	PUT	Updates existing information for a student based on the provided ID.
+
 /students/:id	DELETE	Deletes a student record with the specified ID.
 
+![alt text](<Screenshot from 2025-01-17 11-59-59.png>)
+
 Create a GET request to http://localhost:8080/students to retrieve all students.
+
 Create a POST request to http://localhost:8080/students with a JSON body containing student data (e.g., name, email) to create a new student.
+
 Create a GET request to http://localhost:8080/students/:id (replacing :id with the actual student ID) to retrieve details of a specific student.
+
 Create a PUT request to http://localhost:8080/students/:id with a JSON body containing updated student data (e.g., name) to modify an existing student.
+
 Create a DELETE request to http://localhost:8080/students/:id (replacing :id with the actual student ID) to delete a student record.
 
 **Simply deploy using docker-compose**
 Here you can simply pull image from my dockerhub 
 (Make sure you have docker compose installed )
+Else install it from (https://docs.docker.com/compose/install/)
 
 ```bash
 docker pull devasheesh22/student-api:v1
@@ -97,6 +110,7 @@ make down
 
 
 **Using vagrant file**
+
 Vagrant is the command line utility for managing the lifecycle of virtual machines.
 Make sure you have vagrant installed on your machine and also you must have a oracle virtual box.
 By running the following command you can run the app on baremetal.
@@ -197,7 +211,6 @@ kubectl exec -ti vault-0 -n vault -- vault operator unseal # Use Unseal Key 3
 Set the Vault address for your local environment:
 
 ```bash
-Copy code
 export VAULT_ADDR='http://127.0.0.1:8200'
 ```
 
@@ -267,6 +280,7 @@ vault kv get argocd/mysecret
 
 ```
 ## External-secrets-operator
+
 External Secrets Operator is a Kubernetes operator that integrates external secret management systems like AWS Secrets Manager, HashiCorp Vault, Google Secrets Manager, Azure Key Vault, IBM Cloud Secrets Manager, and many more. The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
 
 # Install Secret operator
@@ -381,14 +395,14 @@ kubectl port-forward svc/student-api-service 8080:80 -n student-info-app
 
 ![alt text](image.png)
 
-# Integrating with PLG (promtail ,loki & grafana)
+# Integrating with PLG (promtail ,loki ,prometheus & grafana)
 ```bash
 helm repo add grafana https://grafana.github.io/helm-charts 
 helm repo update
 helm search repo loki
 helm show values grafana/loki-stack > values.yaml
 vim values.yaml
-#(just change promtail enabled from false to true)
+#(just change promtail and prometheus enabled from false to true)
 #save it
 helm install --values values.yaml loki grafana/loki-stack
 
@@ -404,17 +418,24 @@ Forwarding from 127.0.0.1:3000 -> 3000
 Forwarding from [::1]:3000 -> 3000
 # Copy and paste the secret from loki-secret which is base64 encoded decode it
 ```
-In graphana UI you will have grafana loki pre-configured access it and you can check fro all the logs over there !
+In graphana UI you will have grafana loki pre-configured access it and you can check for all the logs over there !
 
 ![alt text](<Screenshot from 2025-01-11 22-22-46.png>)
 
-# Install prometheus using helm chart 
-```bash
-helm repo add prometheus https://prometheus.github.io/helm-charts
 
-helm install prometheus prometheus-community/prometheus
 
 # Add prometheus as a data source and fetch all the metrics in graphana UI
 
-```
-![alt text](image-3.png)
+![alt text](<Screenshot from 2025-01-15 23-02-33.png>)
+
+# Integrating Slack for alerts using Grafana 
+
+Create your workspace 
+
+Add an an application and further create a webhook URL
+
+Copy the webhook URL
+
+In Grafana UI go to Alerts & notification create custom alert and paste the slack webhook URL ,once done you will recieve a natification 
+
+![alt text](<Screenshot from 2025-01-17 11-54-32.png>)
