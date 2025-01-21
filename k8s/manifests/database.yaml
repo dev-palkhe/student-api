@@ -4,10 +4,6 @@ metadata:
   name: postgres
   namespace: student-info-app
 spec:
-  template:
-    spec:
-      nodeSelector:
-        role: backend
   replicas: 1
   selector:
     matchLabels:
@@ -17,6 +13,16 @@ spec:
       labels:
         app: postgres
     spec:
+      # Node affinity to schedule on node with role=database
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: student-info-app
+                operator: In
+                values:
+                - "true"
       containers:
       - name: postgres
         image: postgres:15
@@ -60,4 +66,3 @@ spec:
     port: 5432
     targetPort: 5432
   type: ClusterIP
-

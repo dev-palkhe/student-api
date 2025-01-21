@@ -158,12 +158,17 @@ kind-worker
 ```
 **Label the nodes** 
 ```bash
-$ kubectl label node kind-worker2 app=backend
-node/kind-worker2 labeled
-$ kubectl label node kind-worker3 app=backend
-node/kind-worker3 labeled
-$ kubectl label node kind-worker app=security
+kubectl get nodes
+NAME                 STATUS   ROLES           AGE   VERSION
+kind-control-plane   Ready    control-plane   31s   v1.29.2
+kind-worker          Ready    <none>          7s    v1.28.7
+kind-worker2         Ready    <none>          10s   v1.30.0
+
+$ kubectl label nodes kind-worker student-info-app=true
 node/kind-worker labeled
+$ kubectl label nodes kind-worker2 student-info-app=true
+node/kind-worker2 labeled
+
 ```
 # Using hashicorp vault and ESO for injecting secrets :
 
