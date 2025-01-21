@@ -4,10 +4,6 @@ metadata:
   name: student-api
   namespace: student-info-app
 spec:
-  template:
-    spec:
-      nodeSelector:
-        app: backend
   replicas: 1
   selector:
     matchLabels:
@@ -17,6 +13,16 @@ spec:
       labels:
         app: student-api
     spec:
+      # Node affinity to schedule on node with role=application
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: student-info-app
+                operator: In
+                values:
+                - "true"
       initContainers:
       - name: db-migrations
         image: postgres:15
@@ -50,8 +56,7 @@ spec:
           runAsUser: 0
       containers:
       - name: student-api
-        image: docker.io/devasheesh22/student-api:{{ .Values.image.tag }}
-        imagePullPolicy: Always
+        image: docker.io/devasheesh22/student-api:v1
         ports:
         - containerPort: 8080
         volumeMounts:
@@ -64,7 +69,7 @@ spec:
           - name: DB_PORT
             value: "5432"
           - name: DB_NAME
-            value: student_api
+            value: student_docker
           - name: DATABASE_URL
             valueFrom:
               secretKeyRef:
@@ -95,6 +100,6 @@ spec:
     app: student-api
   ports:
   - protocol: TCP
-    port: 80
+    port: 80  # Service port can be different from container port
     targetPort: 8080
   type: ClusterIP
