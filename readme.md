@@ -444,3 +444,39 @@ Copy the webhook URL
 In Grafana UI go to Alerts & notification create custom alert and paste the slack webhook URL ,once done you will recieve a natification 
 
 ![alt text](<Screenshot from 2025-01-17 11-54-32.png>)
+# Above PLG configuration doesn't download prometheus CRDs and grafana built-in dashboards So for alerting and scraping metrics from a postgres exporter we follow the steps:
+
+```bash 
+# Delete the helm loki chart
+helm install monitoring prometheus-community/kube-prometheus-stack 
+
+helm install postgres-exporter prometheus-community/prometheus-postgres-exporter -f postgres-exporter.yaml -n student-info-app
+
+# Check that postgres exporter pod is running in student-info-app namespace:
+kubectl get pods -n student-info-app
+NAME                                                             READY   STATUS    RESTARTS   AGE
+postgres-6d77f9d6fd-ph5zr                                        1/1     Running   0          14m
+postgres-exporter-prometheus-postgres-exporter-f5c569585-znzh7   1/1     Running   0          5m54s
+student-api-86bc7b49fb-zx9gd                                     1/1     Running   0          14m
+
+# port forward the following ports to access the DB metrics exporter, grafana & prometheus by :
+
+kubectl port-forward service/monitoring-grafana 3000:80 #Grafana UI
+
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090 #promethues UI
+
+kubectl port-forward service/postgres-exporter-prometheus-postgres-exporter 9187:80 -n student-info-app #DB metric UI
+
+kubectl port-forward svc/student-api-service 8080:80 -n student-info-app # Our application
+```
+## Prometheus Postgres metric exporter
+
+![](<Screenshot from 2025-01-25 17-16-00.png>)
+
+## The metrics within postgres DB
+
+![alt text](<Screenshot from 2025-01-26 12-31-07.png>)
+
+## Default dashboards for Grafana
+
+![alt text](<Screenshot from 2025-01-26 12-30-59.png>)

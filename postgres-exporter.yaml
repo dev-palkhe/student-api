@@ -1,0 +1,24 @@
+config:
+  datasource:
+    host: 'postgres.student-info-app.svc.cluster.local'
+    port: "5432"
+    userSecret:
+      name: 'example-secret'
+      key: 'DB_username'
+    passwordSecret:
+      name: 'example-secret'
+      key: 'DB_password'
+serviceMonitor:
+  enabled: true
+  labels:
+    release: monitoring
+# Do check label of prometheus
+#kubectl get prometheus -n default -o yaml | grep -A 5 serviceMonitorSelector
+#    serviceMonitorSelector:
+#      matchLabels:
+#        release: monitoring
+#    shards: 1
+#    tsdb:
+#     outOfOrderTimeWindow: 0s
+#
+  
